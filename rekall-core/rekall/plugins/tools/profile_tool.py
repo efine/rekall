@@ -309,10 +309,14 @@ class OSXConverter(LinuxConverter):
         system_map = self.SelectFile("dsymutil$")
         if system_map:
             # Parse the system map file.
-            system_map = self.ParseSystemMap(system_map)
+            system_map = self.ParseSystemMap(utils.SmartUnicode(system_map))
 
             vtype_file = self.SelectFile(r"\.vtypes$")
             if vtype_file:
+                # Some maps have keys that are a large integer followed by 'L',
+                # which is invalid Python syntax, so get rid of them
+                vtype_file = re.sub(r"(\d+)L", "\\1",
+                                    utils.SmartUnicode(vtype_file))
                 self.session.logging.info(
                     "Converting Darwin profile with vtypes dump output")
 
